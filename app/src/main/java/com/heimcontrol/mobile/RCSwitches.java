@@ -14,22 +14,26 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.socket.*;
-
-import static android.widget.Toast.makeText;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+import io.socket.IOAcknowledge;
+import io.socket.IOCallback;
+import io.socket.SocketIO;
+import io.socket.SocketIOException;
 
 
 public class RCSwitches extends Fragment implements RefreshInterface {
@@ -55,9 +59,10 @@ public class RCSwitches extends Fragment implements RefreshInterface {
         if (getKey().equals("") || this.url.equals(""))
         {
             CharSequence text = "No key available, please check heimcontrol url in settings and log in.";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = makeText(context, text, duration);
-            toast.show();
+           // int duration = Toast.LENGTH_SHORT;
+//            Toast toast = makeText(context, text, duration);
+//            toast.show();
+            Crouton.makeText(getActivity(), text, Style.ALERT).show();
             this.logout();
         }
 
@@ -146,9 +151,10 @@ public class RCSwitches extends Fragment implements RefreshInterface {
                             that.logout();
                         }
                         CharSequence text = "Error " + statusCode + " while fetching toggles";
-                        int duration = Toast.LENGTH_SHORT;
-                        Toast toast = makeText(context, text, duration);
-                        toast.show();
+                   //     int duration = Toast.LENGTH_SHORT;
+//                        Toast toast = makeText(context, text, duration);
+//                        toast.show();
+                        Crouton.makeText(getActivity(), text, Style.ALERT).show();
                     }
                 }
         );
@@ -302,9 +308,10 @@ public class RCSwitches extends Fragment implements RefreshInterface {
     private synchronized void toastit(String ttext)
     {
         CharSequence text = ttext;
-        int duration = Toast.LENGTH_LONG;
-        Toast toast = makeText(context, text, duration);
-        toast.show();
+      //  int duration = Toast.LENGTH_LONG;
+//        Toast toast = makeText(context, text, duration);
+//        toast.show();
+        Crouton.makeText(getActivity(), text, Style.ALERT).show();
     }
 
     public String getKey() {

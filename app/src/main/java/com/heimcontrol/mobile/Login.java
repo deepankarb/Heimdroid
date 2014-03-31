@@ -6,13 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -22,6 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 public class Login extends Activity
@@ -89,14 +90,17 @@ public class Login extends Activity
                         {
                             CharSequence text = statusCode + ": Wrong email or password";
                             int duration = Toast.LENGTH_SHORT;
-                            Toast toast = Toast.makeText(context, text, duration);
-                            toast.show();
+
+//                            Toast toast = Toast.makeText(context, text, duration);
+//                            toast.show();
+                            Crouton.makeText(Login.this, text, Style.ALERT).show();
                         }else
                         {
                             CharSequence text = "Error " + statusCode + " while trying to log in";
                             int duration = Toast.LENGTH_SHORT;
-                            Toast toast = Toast.makeText(context, text, duration);
-                            toast.show();
+//                            Toast toast = Toast.makeText(context, text, duration);
+//                            toast.show();
+                            Crouton.makeText(Login.this, text, Style.ALERT).show();
                         }
                     }
                 }
