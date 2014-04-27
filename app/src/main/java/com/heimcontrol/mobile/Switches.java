@@ -53,7 +53,7 @@ public class Switches extends Fragment implements RefreshInterface {
             switchesList = new ArrayList<GPIO>();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        this.url = prefs.getString("heimcontrol_url", "");
+        this.url = prefs.getString("home_url", "");
 
         if (getKey().equals("") || this.url.equals(""))
         {

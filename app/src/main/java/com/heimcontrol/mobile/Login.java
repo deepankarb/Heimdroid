@@ -61,7 +61,7 @@ public class Login extends Activity
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        RestClient.setBaseUrl(prefs.getString("heimcontrol_url", ""));
+        RestClient.setBaseUrl(prefs.getString("home_url", ""));
 
         RestClient.postJSON(
                 (Heimcontrol) getApplicationContext(),

@@ -77,7 +77,7 @@ public class RestClient
     public static void setBaseUrl(String url, Context context)
     {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        BASE_URL = prefs.getString("heimcontrol_url", "");
+        BASE_URL = prefs.getString("home_url", "");
     }
 
     public static void setBaseUrl(String url)
