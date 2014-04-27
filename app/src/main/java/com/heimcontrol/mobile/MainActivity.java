@@ -31,7 +31,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(mViewPager);
         context = getApplicationContext();
 
-        setKey(((Heimcontrol)context).user.getKey());
+        setKey(((Heimcontrol) context).user.getKey());
 
         final ActionBar bar = getActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -40,8 +40,8 @@ public class MainActivity extends FragmentActivity {
         mTabsAdapter = new TabsAdapter(this, mViewPager);
         mTabsAdapter.addTab(bar.newTab().setText("GPIO"),
                 Switches.class, null, getApplicationContext());
-        mTabsAdapter.addTab(bar.newTab().setText("RC"),
-                RCSwitches.class, null, getApplicationContext());
+//        mTabsAdapter.addTab(bar.newTab().setText("RC"),
+//                RCSwitches.class, null, getApplicationContext());
 
         if (savedInstanceState != null) {
             bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
@@ -49,8 +49,7 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    public void logout()
-    {
+    public void logout() {
         ((Heimcontrol) getApplicationContext()).user.setKey("");
         Intent intent = new Intent(this, Login.class);
         startActivity(intent);
@@ -58,42 +57,34 @@ public class MainActivity extends FragmentActivity {
     }
 
 
-
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("tab", getActionBar().getSelectedNavigationIndex());
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
+    public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.switches, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings)
-        {
+        if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
             return true;
-        }else if (id == R.id.action_refresh)
-        {
-            for (int i=0; i<mTabsAdapter.fragments.size(); i++)
-            {
-                RefreshInterface tab = (RefreshInterface)mTabsAdapter.fragments.get(i);
+        } else if (id == R.id.action_refresh) {
+            for (int i = 0; i < mTabsAdapter.fragments.size(); i++) {
+                RefreshInterface tab = (RefreshInterface) mTabsAdapter.fragments.get(i);
                 tab.refresh();
             }
             return true;
-        }else if (id == R.id.action_logout)
-        {
-           this.logout();
+        } else if (id == R.id.action_logout) {
+            this.logout();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -118,8 +109,7 @@ public class MainActivity extends FragmentActivity {
      * tab changes.
      */
     public static class TabsAdapter extends FragmentPagerAdapter
-            implements ActionBar.TabListener, ViewPager.OnPageChangeListener
-    {
+            implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
         private final Context mContext;
         private final ActionBar mActionBar;
         private final ViewPager mViewPager;
@@ -127,25 +117,7 @@ public class MainActivity extends FragmentActivity {
         private final ArrayList<Fragment> fragments = new ArrayList<android.app.Fragment>();
 
 
-        @Override
-        public android.app.Fragment getItem(int i)
-        {
-            return fragments.get(i);
-        }
-
-        static final class TabInfo {
-            private final Class<?> clss;
-            private final Bundle args;
-
-            TabInfo(Class<?> _class, Bundle _args)
-            {
-                clss = _class;
-                args = _args;
-            }
-        }
-
-        public TabsAdapter(FragmentActivity activity, ViewPager pager)
-        {
+        public TabsAdapter(FragmentActivity activity, ViewPager pager) {
             super(activity.getFragmentManager());
             mContext = activity;
             mActionBar = activity.getActionBar();
@@ -154,8 +126,12 @@ public class MainActivity extends FragmentActivity {
             mViewPager.setOnPageChangeListener(this);
         }
 
-        public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args, Context context)
-        {
+        @Override
+        public android.app.Fragment getItem(int i) {
+            return fragments.get(i);
+        }
+
+        public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args, Context context) {
             TabInfo info = new TabInfo(clss, args);
             fragments.add(android.app.Fragment.instantiate(context, clss.getName()));
             tab.setTag(info);
@@ -166,33 +142,27 @@ public class MainActivity extends FragmentActivity {
         }
 
         @Override
-        public int getCount()
-        {
+        public int getCount() {
             return mTabs.size();
         }
 
         @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-        {
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
 
         @Override
-        public void onPageSelected(int position)
-        {
+        public void onPageSelected(int position) {
             mActionBar.setSelectedNavigationItem(position);
         }
 
         @Override
-        public void onPageScrollStateChanged(int state)
-        {
+        public void onPageScrollStateChanged(int state) {
         }
 
         @Override
-        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
             Object tag = tab.getTag();
-            for (int i=0; i<mTabs.size(); i++)
-            {
+            for (int i = 0; i < mTabs.size(); i++) {
                 if (mTabs.get(i) == tag) {
                     mViewPager.setCurrentItem(i);
                 }
@@ -200,13 +170,21 @@ public class MainActivity extends FragmentActivity {
         }
 
         @Override
-        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
         }
 
         @Override
-        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft)
-        {
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+        }
+
+        static final class TabInfo {
+            private final Class<?> clss;
+            private final Bundle args;
+
+            TabInfo(Class<?> _class, Bundle _args) {
+                clss = _class;
+                args = _args;
+            }
         }
     }
 }
