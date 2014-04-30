@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 public class Heimcontrol extends Application
 {
 
-    User user;
+    public static User user;
 
     @Override
     public void onCreate()

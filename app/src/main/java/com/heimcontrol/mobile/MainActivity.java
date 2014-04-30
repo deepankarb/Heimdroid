@@ -5,14 +5,28 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.apache.http.Header;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 public class MainActivity extends FragmentActivity {
@@ -31,6 +45,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(mViewPager);
         context = getApplicationContext();
 
+
         setKey(((Heimcontrol) context).user.getKey());
 
         final ActionBar bar = getActionBar();
@@ -48,13 +63,13 @@ public class MainActivity extends FragmentActivity {
         }
 
     }
-
+/*
     public void logout() {
         ((Heimcontrol) getApplicationContext()).user.setKey("");
-        Intent intent = new Intent(this, Login.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
-    }
+    }*/
 
 
     @Override
@@ -84,7 +99,7 @@ public class MainActivity extends FragmentActivity {
             }
             return true;
         } else if (id == R.id.action_logout) {
-            this.logout();
+            // this.logout();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -95,6 +110,75 @@ public class MainActivity extends FragmentActivity {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    private void authenticate() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String username = prefs.getString("pref_key_username", "");
+        String passwordText = prefs.getString("pref_key_password", "");
+
+        JSONObject params = new JSONObject();
+
+        try {
+            params.put("email", username);
+            params.put("password", passwordText);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        StringEntity entity = null;
+        try {
+            entity = new StringEntity(params.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        RestClient.setBaseUrl(prefs.getString("home_url", ""));
+
+        RestClient.postJSON(
+                getApplicationContext(),
+                "api/login",
+                entity,
+                new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(JSONObject responseData) {
+                        try {
+                            String applicationKey = responseData.getString("token");
+                            Heimcontrol.user.setKey(applicationKey);
+                            MainActivity.this.loggedIn();
+                        } catch (JSONException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        if (statusCode == 401) {
+                            CharSequence text = statusCode + ": Wrong email or password";
+                            int duration = Toast.LENGTH_SHORT;
+
+//                            Toast toast = Toast.makeText(context, text, duration);
+//                            toast.show();
+                            Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
+                        } else {
+                            CharSequence text = "Error " + statusCode + " while trying to log in";
+                            int duration = Toast.LENGTH_SHORT;
+//                            Toast toast = Toast.makeText(context, text, duration);
+//                            toast.show();
+                            Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
+                        }
+                    }
+                }
+        );
+    }
+
+    public void loggedIn() {
+        String key = ((Heimcontrol) getApplicationContext()).user.getKey();
+        if (key == "") {
+            CharSequence text = "Error!";
+            Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
+        }
     }
 
     /**
