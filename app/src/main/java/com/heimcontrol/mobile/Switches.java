@@ -59,38 +59,35 @@ public class Switches extends Fragment implements RefreshInterface {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.url = prefs.getString("home_url", "");
 
-        if (getKey().equals("") || this.url.equals(""))
+
+        if ( this.url.equals(""))
         {
-            CharSequence text = "No key available, please check heimcontrol url in settings and log in.";
+            CharSequence text = "Please go to settings and enter a URL for homecontrol";
 //            int duration = Toast.LENGTH_SHORT;
 //            Toast toast = makeText(context, text, duration);
 //            toast.show();
             Crouton.makeText(Switches.this.getActivity(), text, Style.ALERT).show();
             //  this.logout();
         }
+        else{
+            RestClient.setBaseUrl(this.url, context);
 
-        RestClient.setBaseUrl(this.url, context);
+            if (savedInstanceState == null) {
+                getFragmentManager().beginTransaction()
+                        .commit();
+            }
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
-                    .commit();
+            this.connectToSocket();
+            this.setSwitches();
         }
-        this.connectToSocket();
-
-        this.setSwitches();
-
     }
-
 
     public void attachView(View myView)
     {
         final ListView listview = (ListView) myView.findViewById(R.id.switchesList);
         listAdapter = new GPIOArrayAdapter(context, R.layout.fragment_switches, getSwitchesList());
         listview.setAdapter(listAdapter);
-
     }
-
-
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -99,7 +96,6 @@ public class Switches extends Fragment implements RefreshInterface {
         this.attachView(myView);
         return myView;
     }
-
 
     public ArrayList<GPIO> getSwitchesList()
     {
@@ -166,9 +162,6 @@ public class Switches extends Fragment implements RefreshInterface {
     {
         this.setSwitches();
     }
-
-
-
 
     public void notifyHeimcontrol(GPIO obj, boolean on)
     {
@@ -326,16 +319,17 @@ public class Switches extends Fragment implements RefreshInterface {
         TextView direction;
         TextView value;
         TextView pin;
+        Switch sswitch;
     }
 
     private class GPIOArrayAdapter extends ArrayAdapter<GPIO> {
 
-        List<GPIO> objects;
+        ArrayList<GPIO> objects;
 
         public GPIOArrayAdapter(Context context, int textViewResourceId,
                                 List<GPIO> objects) {
             super(context, textViewResourceId, objects);
-            this.objects = objects;
+            this.objects = (ArrayList<GPIO>) objects;
             Collections.sort(this.objects, new Comparator<GPIO>() {
                 @Override
                 public int compare(GPIO lhs, GPIO rhs) {
@@ -347,41 +341,41 @@ public class Switches extends Fragment implements RefreshInterface {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            GPIOHolder holder = null;
-            GPIO pos = objects.get(position);
 
-            if (row == null) {
+            GPIOHolder holder;
+            GPIO gpio = objects.get(position);
+
+            if (convertView == null) {
                 LayoutInflater inflater = ((Activity) getContext()).getLayoutInflater();
-                row = inflater.inflate(R.layout.fragment_switches, parent, false);
+                convertView = inflater.inflate(R.layout.fragment_switches, parent, false);
 
                 holder = new GPIOHolder();
-                holder.pin = (TextView) row.findViewById(R.id.pin);
-                holder.description = (TextView) row.findViewById(R.id.description);
+                holder.pin = (TextView) convertView.findViewById(R.id.pin);
+                holder.description = (TextView) convertView.findViewById(R.id.description);
+                holder.sswitch = (Switch) convertView.findViewById(R.id.pinSwitch);
 
-                row.setTag(holder);
-
-                holder.description.setText(pos.getDescription());
-                holder.pin.setText(pos.getPin());
-
-                Switch sswitch = (Switch) row.findViewById(R.id.pinSwitch);
-                sswitch.setChecked(pos.getValue());
-                sswitch.setTag(pos);
-                sswitch.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        GPIO item = (GPIO) buttonView.getTag();
-
-                        notifyHeimcontrol(item, isChecked);
-                    }
-                });
+                convertView.setTag(holder);
             } else {
-                holder = (GPIOHolder) row.getTag();
-                Switch sswitch = (Switch) row.findViewById(R.id.pinSwitch);
+                holder = (GPIOHolder) convertView.getTag();
                 //sswitch.setChecked(pos.getValue());
             }
 
-            return row;
+
+            holder.sswitch.setChecked(gpio.getValue());
+            holder.sswitch.setTag(gpio);
+
+            holder.sswitch.setOnCheckedChangeListener(new Switch.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    GPIO item = (GPIO) buttonView.getTag();
+                    notifyHeimcontrol(item, isChecked);
+                }
+            });
+
+            holder.description.setText(gpio.getDescription());
+            holder.pin.setText(gpio.getPin());
+
+            return convertView;
         }
 
     }

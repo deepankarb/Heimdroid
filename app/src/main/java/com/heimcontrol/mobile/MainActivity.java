@@ -62,7 +62,12 @@ public class MainActivity extends FragmentActivity {
             bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
         }
 
+        // Look out for conn changes
+        ConnectivityChangeReceiver.enable(getApplicationContext());
+
     }
+
+
 /*
     public void logout() {
         ((Heimcontrol) getApplicationContext()).user.setKey("");
@@ -270,5 +275,18 @@ public class MainActivity extends FragmentActivity {
                 args = _args;
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Stop looking out for conn changes
+        ConnectivityChangeReceiver.disable(getApplicationContext());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }
