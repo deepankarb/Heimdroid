@@ -21,7 +21,7 @@ public class RestClient
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler)
     {
-        String authKey = User.getKey();
+        String authKey = Heimcontrol.user.getKey();
         if(authKey != null)
         {
             client.addHeader("authorization", authKey);
@@ -31,7 +31,7 @@ public class RestClient
 
     public static void get(String url, AsyncHttpResponseHandler responseHandler)
     {
-        String authKey = User.getKey();
+        String authKey = Heimcontrol.user.getKey();
         if(authKey != null)
         {
             client.addHeader("authorization", authKey);
@@ -41,7 +41,7 @@ public class RestClient
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler)
     {
-        String authKey = User.getKey();
+        String authKey = Heimcontrol.user.getKey();
         if(authKey != null)
         {
             client.addHeader("authorization", authKey);
@@ -51,7 +51,8 @@ public class RestClient
 
     public static void post(String url, AsyncHttpResponseHandler responseHandler)
     {
-        String authKey = User.getKey();
+        String authKey = Heimcontrol.user.getKey();
+
         if(authKey != null)
         {
             client.addHeader("authorization", authKey);
@@ -61,7 +62,7 @@ public class RestClient
 
     public static void postJSON(Context context, String url, StringEntity params, AsyncHttpResponseHandler responseHandler)
     {
-        String authKey = User.getKey();
+        String authKey = Heimcontrol.user.getKey();
         if(authKey != null)
         {
             client.addHeader("authorization", authKey);

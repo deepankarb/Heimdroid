@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -36,11 +36,10 @@ import io.socket.IOCallback;
 import io.socket.SocketIO;
 import io.socket.SocketIOException;
 
-import static android.widget.Toast.makeText;
-
 
 public class Switches extends Fragment implements RefreshInterface {
 
+    private static final String TAG = "Switches";
     private SocketIO socket;
     private String url;
     private Context context;
@@ -63,9 +62,6 @@ public class Switches extends Fragment implements RefreshInterface {
         if ( this.url.equals(""))
         {
             CharSequence text = "Please go to settings and enter a URL for homecontrol";
-//            int duration = Toast.LENGTH_SHORT;
-//            Toast toast = makeText(context, text, duration);
-//            toast.show();
             Crouton.makeText(Switches.this.getActivity(), text, Style.ALERT).show();
             //  this.logout();
         }
@@ -113,6 +109,7 @@ public class Switches extends Fragment implements RefreshInterface {
                     @Override
                     public void onSuccess(JSONArray responseData)
                     {
+                        Log.v(TAG, "Parsing response");
                         try {
                             ArrayList<GPIO> list = new ArrayList<GPIO>();
                             for (int i = 0; i < responseData.length(); i++) {
@@ -124,6 +121,7 @@ public class Switches extends Fragment implements RefreshInterface {
                                 String pin = obj.getString("pin");
                                 list.add(new GPIO(id, description, direction, isBoolean(value), pin));
                             }
+                            Log.v(TAG, responseData.length() + " sws added");
                             setSwitches(list);
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
@@ -136,9 +134,7 @@ public class Switches extends Fragment implements RefreshInterface {
                             //  that.logout();
                         }
                         CharSequence text = "Error " + statusCode + " while fetching toggles";
-                        int duration = Toast.LENGTH_SHORT;
-                        Toast toast = makeText(context, text, duration);
-                        toast.show();
+                        Crouton.makeText(getActivity(), text, Style.ALERT).show();
                     }
                 }
         );
@@ -163,7 +159,7 @@ public class Switches extends Fragment implements RefreshInterface {
         this.setSwitches();
     }
 
-    public void notifyHeimcontrol(GPIO obj, boolean on)
+    public void notifyHeimcontrol(GPIO obj)
     {
         if(!socket.isConnected())
             connectToSocket();
@@ -176,7 +172,7 @@ public class Switches extends Fragment implements RefreshInterface {
         {
             value = "0";
         }
-        obj.setValue(!obj.getValue());
+        //obj.setValue(!obj.getValue());
         JSONObject params = new JSONObject();
         try {
             params.put("value", value);
@@ -184,7 +180,6 @@ public class Switches extends Fragment implements RefreshInterface {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         socket.emit("gpio-toggle", params);
     }
 
@@ -200,7 +195,7 @@ public class Switches extends Fragment implements RefreshInterface {
             return;
 
         try {
-            String authKey = User.getKey();
+            String authKey = Heimcontrol.user.getKey();
             socket = new SocketIO(this.url);
             socket.addHeader("authorization", authKey);
         } catch (MalformedURLException e) {
@@ -219,15 +214,12 @@ public class Switches extends Fragment implements RefreshInterface {
 
             @Override
             public void onMessage(String data, IOAcknowledge ack) {
-                   System.out.println(data);
+                System.out.println(data);
             }
 
             @Override
             public void onError(SocketIOException socketIOException) {
                 /*CharSequence text = "Socketio error occurred";
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = makeText(context, text, duration);
-                toast.show();
                 socketIOException.printStackTrace();*/
             }
 
@@ -242,25 +234,23 @@ public class Switches extends Fragment implements RefreshInterface {
             }
 
             @Override
-            public void on(String event, IOAcknowledge ack, Object... args)
-            {
+            public void on(String event, IOAcknowledge ack, Object... args) {
                 JSONObject incoming = (JSONObject) args[0];
                 String id = null;
                 String value = null;
                 try {
                     id = incoming.getString("id");
                     value = incoming.getString("value");
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                for (int i = 0; i < switchesList.size(); i++)
-                {
-                    if(switchesList.get(i).get_id().equals(id))
-                    {
+                for (int i = 0; i < switchesList.size(); i++) {
+                    if (switchesList.get(i).get_id().equals(id)) {
                         switchesList.get(i).setValue(isBoolean(value));
-                        //todo: whatever this blah here is
-                        switchesList.get(i).setDescription("blah");
+//                        //todo: whatever this blah here is
+//                        switchesList.get(i).setDescription("blah");
                     }
                 }
                 //todo: check whether this refresh is still working
@@ -293,14 +283,6 @@ public class Switches extends Fragment implements RefreshInterface {
             val = true;
         }
         return val;
-    }
-
-    private synchronized void toastit(String ttext)
-    {
-        CharSequence text = ttext;
-        int duration = Toast.LENGTH_LONG;
-        Toast toast = makeText(context, text, duration);
-        toast.show();
     }
 
     public String getKey() {
@@ -360,7 +342,9 @@ public class Switches extends Fragment implements RefreshInterface {
                 //sswitch.setChecked(pos.getValue());
             }
 
-
+            //clear oncheckedlistener if any
+            holder.sswitch.setOnCheckedChangeListener(null);
+            // set the state
             holder.sswitch.setChecked(gpio.getValue());
             holder.sswitch.setTag(gpio);
 
@@ -368,7 +352,7 @@ public class Switches extends Fragment implements RefreshInterface {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     GPIO item = (GPIO) buttonView.getTag();
-                    notifyHeimcontrol(item, isChecked);
+                    notifyHeimcontrol(item);
                 }
             });
 

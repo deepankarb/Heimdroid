@@ -58,7 +58,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
     public static void disable(Context context) {
         ComponentName receiver = new ComponentName(context, ConnectivityChangeReceiver.class);
         PackageManager pm = context.getPackageManager();
-        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, 0);
+        pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
     
 }

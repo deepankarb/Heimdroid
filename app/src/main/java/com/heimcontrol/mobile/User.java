@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 public class User
 {
     private SharedPreferences preferences;
-    private static String key;
+    private String key;
 
     User(SharedPreferences preferences)
     {
@@ -24,9 +24,9 @@ public class User
         editor.commit();
     }
 
-    public static String getKey()
+    public String getKey()
     {
-        return key;
+        return this.key;
     }
 
 }

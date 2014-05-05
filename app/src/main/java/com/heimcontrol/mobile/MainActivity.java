@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -64,6 +63,8 @@ public class MainActivity extends FragmentActivity {
 
         // Look out for conn changes
         ConnectivityChangeReceiver.enable(getApplicationContext());
+        // Login to heimcontrol
+        authenticate();
 
     }
 
@@ -150,7 +151,7 @@ public class MainActivity extends FragmentActivity {
                         try {
                             String applicationKey = responseData.getString("token");
                             Heimcontrol.user.setKey(applicationKey);
-                            MainActivity.this.loggedIn();
+                            //MainActivity.this.loggedIn();
                         } catch (JSONException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
@@ -161,16 +162,9 @@ public class MainActivity extends FragmentActivity {
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                         if (statusCode == 401) {
                             CharSequence text = statusCode + ": Wrong email or password";
-                            int duration = Toast.LENGTH_SHORT;
-
-//                            Toast toast = Toast.makeText(context, text, duration);
-//                            toast.show();
                             Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
                         } else {
                             CharSequence text = "Error " + statusCode + " while trying to log in";
-                            int duration = Toast.LENGTH_SHORT;
-//                            Toast toast = Toast.makeText(context, text, duration);
-//                            toast.show();
                             Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
                         }
                     }
@@ -178,13 +172,13 @@ public class MainActivity extends FragmentActivity {
         );
     }
 
-    public void loggedIn() {
-        String key = ((Heimcontrol) getApplicationContext()).user.getKey();
-        if (key == "") {
-            CharSequence text = "Error!";
-            Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
-        }
-    }
+//    public void loggedIn() {
+//        String key = ((Heimcontrol) getApplicationContext()).user.getKey();
+//        if (key == "") {
+//            CharSequence text = "Error!";
+//            Crouton.makeText(MainActivity.this, text, Style.ALERT).show();
+//        }
+//    }
 
     /**
      * This is a helper class that implements the management of tabs and all
